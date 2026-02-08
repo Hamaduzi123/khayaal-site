@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khayaal - Turn Drawings into Animated Characters</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #fff; overflow-x: hidden; }
+
+        /* ===== NAVBAR ===== */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 20px 60px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100; background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px); border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+        }
+        .logo { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+        .logo span { color: #f472b6; }
+        .nav-badge {
+            background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 8px 16px; border-radius: 20px; font-size: 13px; color: #a5b4fc;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            padding: 120px 40px 80px; position: relative;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.25);
+            padding: 8px 20px; border-radius: 24px; font-size: 14px; color: #a5b4fc; margin-bottom: 32px;
+        }
+        .hero-tag .dot { width: 6px; height: 6px; background: #6366f1; border-radius: 50%; }
+        .hero h1 { font-size: 72px; font-weight: 800; line-height: 1.05; margin-bottom: 8px; letter-spacing: -2px; }
+        .hero .arabic-title { font-size: 42px; color: #f472b6; margin-bottom: 24px; font-weight: 600; }
+        .hero p { font-size: 20px; color: #94a3b8; max-width: 600px; line-height: 1.6; margin-bottom: 48px; }
+        .hero-cta { display: flex; gap: 16px; }
+        .btn-primary {
+            background: #6366f1; color: #fff; padding: 14px 32px; border-radius: 12px;
+            font-size: 16px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-primary:hover { background: #4f46e5; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4); }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06); color: #fff; padding: 14px 32px; border-radius: 12px;
+            font-size: 16px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.3s;
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
+        /* ===== SECTIONS ===== */
+        section { padding: 120px 60px; max-width: 1200px; margin: 0 auto; }
+        .section-tag { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; }
+        .section-title { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 16px; letter-spacing: -1px; }
+        .section-desc { font-size: 18px; color: #94a3b8; max-width: 560px; line-height: 1.7; }
+
+        .step-section { padding: 100px 60px; max-width: 1200px; margin: 0 auto; }
+        .step-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+        .step-layout.reverse { direction: rtl; }
+        .step-layout.reverse > * { direction: ltr; }
+        .step-number { font-size: 72px; font-weight: 800; opacity: 0.15; line-height: 1; margin-bottom: 8px; }
+        .step-title { font-size: 36px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.5px; }
+        .step-desc { font-size: 17px; color: #94a3b8; line-height: 1.7; margin-bottom: 24px; }
+        .step-features { list-style: none; }
+        .step-features li { padding: 8px 0; font-size: 15px; color: #cbd5e1; display: flex; align-items: center; gap: 12px; }
+        .step-features li .check { width: 20px; height: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+
+        .divider { max-width: 1200px; margin: 0 auto; padding: 0 60px; }
+        .divider hr { border: none; height: 1px; background: rgba(255, 255, 255, 0.06); }
+
+        /* ===== DEMO CONTAINERS ===== */
+        .demo-container {
+            position: relative; border-radius: 20px; overflow: hidden;
+            aspect-ratio: 16 / 10; border: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        /* ===== DEMO 1: UPLOAD DRAWING ===== */
+        .upload-demo { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .upload-area {
+            position: relative; width: 85%; height: 85%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .upload-placeholder {
+            position: absolute; inset: 0; border: 2px dashed rgba(244, 114, 182, 0.3);
+            border-radius: 16px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 12px;
+            transition: all 0.6s ease;
+        }
+        .upload-placeholder .upload-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: rgba(244, 114, 182, 0.1); display: flex;
+            align-items: center; justify-content: center; font-size: 22px;
+        }
+        .upload-placeholder .upload-text { font-size: 14px; color: #94a3b8; }
+        .upload-placeholder .upload-sub { font-size: 11px; color: #64748b; }
+        .upload-placeholder.hidden { opacity: 0; transform: scale(0.9); }
+
+        .drawing-reveal {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            opacity: 0; transform: scale(0.85); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .drawing-reveal.show { opacity: 1; transform: scale(1); }
+        .drawing-reveal img {
+            max-width: 80%; max-height: 85%; border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(244, 114, 182, 0.3);
+        }
+        .drawing-filename {
+            position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+            background: rgba(244, 114, 182, 0.15); border: 1px solid rgba(244, 114, 182, 0.25);
+            padding: 4px 14px; border-radius: 20px; font-size: 11px; color: #f472b6;
+            white-space: nowrap;
+        }
+        .demo-label {
+            position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+            font-size: 12px; color: #64748b; background: rgba(15, 23, 42, 0.8);
+            padding: 4px 14px; border-radius: 12px; white-space: nowrap; z-index: 5;
+        }
+
+        /* ===== DEMO 2: TRANSFORM ===== */
+        .transform-demo { position: relative; width: 100%; height: 100%; overflow: hidden; }
+        .transform-side {
+            position: absolute; top: 0; width: 50%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .transform-side.left { left: 0; }
+        .transform-side.right { right: 0; }
+        .transform-divider-line {
+            position: absolute; top: 0; left: 50%; width: 2px; height: 100%;
+            background: rgba(99, 102, 241, 0.3);
+        }
+        .transform-side .label {
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+            margin-bottom: 12px; opacity: 0.6;
+        }
+        .sketch-img-box {
+            width: 160px; height: 180px; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(244, 114, 182, 0.2);
+        }
+        .sketch-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .ai-character-img-box {
+            width: 160px; height: 180px; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 4px 25px rgba(99, 102, 241, 0.4);
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            opacity: 0; transform: scale(0.8);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .ai-character-img-box.show { opacity: 1; transform: scale(1); }
+        .ai-character-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .processing-badge {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(99, 102, 241, 0.9); padding: 10px 20px; border-radius: 20px;
+            font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;
+            opacity: 0; transition: opacity 0.4s; z-index: 5;
+        }
+        .processing-badge.show { opacity: 1; }
+        .processing-badge .spinner {
+            width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .transform-arrow {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 28px; color: #6366f1; opacity: 0; transition: opacity 0.5s; z-index: 4;
+        }
+        .transform-arrow.show { opacity: 1; }
+
+        /* ===== DEMO 3: VIDEO STORY ===== */
+        .video-demo { position: relative; width: 100%; height: 100%; overflow: hidden; }
+        .video-wrapper {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            background: #000;
+        }
+        .video-wrapper video {
+            width: 100%; height: 100%; object-fit: contain;
+        }
+        .video-overlay {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 16px;
+            background: rgba(0, 0, 0, 0.5); transition: opacity 0.4s; cursor: pointer;
+            z-index: 3;
+        }
+        .video-overlay.hidden { opacity: 0; pointer-events: none; }
+        .play-btn {
+            width: 72px; height: 72px; border-radius: 50%;
+            background: rgba(52, 211, 153, 0.9); display: flex;
+            align-items: center; justify-content: center;
+            box-shadow: 0 4px 30px rgba(52, 211, 153, 0.4);
+            transition: transform 0.3s;
+        }
+        .play-btn:hover { transform: scale(1.1); }
+        .play-icon {
+            width: 0; height: 0; border-style: solid;
+            border-width: 14px 0 14px 24px;
+            border-color: transparent transparent transparent #fff;
+            margin-left: 4px;
+        }
+        .video-overlay-text { font-size: 15px; color: #e2e8f0; font-weight: 600; }
+        .video-overlay-sub { font-size: 12px; color: #94a3b8; margin-top: -8px; }
+        .video-info {
+            position: absolute; top: 12px; left: 12px; z-index: 4;
+            display: flex; gap: 8px; opacity: 0; transition: opacity 0.3s;
+        }
+        .video-info.show { opacity: 1; }
+        .video-tag {
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px);
+            padding: 5px 12px; border-radius: 8px; font-size: 11px;
+            font-weight: 600; display: flex; align-items: center; gap: 6px;
+        }
+        .video-tag .tag-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+        /* ===== USE CASES ===== */
+        .use-cases { padding: 120px 60px; max-width: 1200px; margin: 0 auto; }
+        .uc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 48px; }
+        .uc-card {
+            background: #1e293b; border-radius: 16px; padding: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s;
+        }
+        .uc-card:hover { border-color: rgba(99, 102, 241, 0.3); transform: translateY(-4px); }
+        .uc-bar { width: 40px; height: 3px; border-radius: 2px; margin-bottom: 20px; }
+        .uc-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .uc-card p { font-size: 15px; color: #94a3b8; line-height: 1.6; }
+
+        /* ===== PIPELINE SECTION ===== */
+        .pipeline-section { padding: 100px 60px; max-width: 1200px; margin: 0 auto; text-align: center; }
+        .pipeline-flow {
+            display: flex; align-items: center; justify-content: center; gap: 16px;
+            margin-top: 48px; flex-wrap: wrap;
+        }
+        .pipeline-card {
+            background: #1e293b; border-radius: 16px; padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05); width: 180px;
+            text-align: center; transition: all 0.3s;
+        }
+        .pipeline-card:hover { border-color: rgba(99, 102, 241, 0.3); transform: translateY(-4px); }
+        .pipeline-card img {
+            width: 100%; height: 120px; object-fit: cover; border-radius: 10px; margin-bottom: 12px;
+        }
+        .pipeline-card .pipe-label { font-size: 12px; font-weight: 600; color: #cbd5e1; }
+        .pipeline-card .pipe-sub { font-size: 10px; color: #64748b; margin-top: 4px; }
+        .pipeline-arrow { font-size: 24px; color: #6366f1; }
+
+        /* ===== CTA ===== */
+        .cta-section { padding: 100px 60px; max-width: 1200px; margin: 0 auto; text-align: center; }
+        .cta-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(244, 114, 182, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 24px; padding: 64px 48px;
+        }
+        .cta-box h2 { font-size: 36px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.5px; }
+        .cta-box p { font-size: 17px; color: #94a3b8; max-width: 500px; margin: 0 auto 32px; line-height: 1.6; }
+        .cta-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(52, 211, 153, 0.12); border: 1px solid rgba(52, 211, 153, 0.25);
+            padding: 10px 20px; border-radius: 24px; font-size: 14px; color: #34d399;
+        }
+
+        footer { padding: 40px 60px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+        footer p { font-size: 13px; color: #475569; }
+
+        /* ===== ANIMATIONS ===== */
+        .fade-up { opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+        .stagger > .fade-up:nth-child(2) { transition-delay: 0.1s; }
+        .stagger > .fade-up:nth-child(3) { transition-delay: 0.2s; }
+        .stagger > .fade-up:nth-child(4) { transition-delay: 0.3s; }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav>
+        <div class="logo">Khayaal <span>&#1582;&#1610;&#1575;&#1604;</span></div>
+        <div class="nav-badge">SCALE7 Future Creators Hackathon 2026</div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-tag fade-up"><span class="dot"></span> AI-Driven Creativity & Production</div>
+        <h1 class="fade-up">Khayaal</h1>
+        <div class="arabic-title fade-up">&#1582;&#1610;&#1575;&#1604;</div>
+        <p class="fade-up">Turn any drawing into an animated, speaking character. From sketch to screen in minutes — powered by AI.</p>
+        <div class="hero-cta fade-up">
+            <button class="btn-primary" onclick="document.getElementById('step1').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+            <button class="btn-secondary" onclick="document.getElementById('usecases').scrollIntoView({behavior:'smooth'})">Use Cases</button>
+        </div>
+    </section>
+
+    <!-- STEP 1: UPLOAD DRAWING -->
+    <div class="divider"><hr></div>
+    <div class="step-section" id="step1">
+        <div class="step-layout">
+            <div class="fade-up">
+                <div class="step-number" style="color: #f472b6;">01</div>
+                <div class="section-tag" style="color: #f472b6;">CAPTURE</div>
+                <h2 class="step-title">Upload any drawing</h2>
+                <p class="step-desc">Sketch a character on paper and snap a photo, or draw directly on screen. A creature, a robot, a superhero — anything you imagine. Khayaal starts with your creativity.</p>
+                <ul class="step-features">
+                    <li><span class="check" style="background: rgba(244, 114, 182, 0.15); color: #f472b6;">&#10003;</span> Works with paper drawings (just take a photo)</li>
+                    <li><span class="check" style="background: rgba(244, 114, 182, 0.15); color: #f472b6;">&#10003;</span> Draw directly on screen</li>
+                    <li><span class="check" style="background: rgba(244, 114, 182, 0.15); color: #f472b6;">&#10003;</span> Any style — messy, detailed, simple</li>
+                </ul>
+            </div>
+            <div class="demo-container fade-up">
+                <div class="upload-demo" id="uploadDemo">
+                    <div class="upload-area">
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            <div class="upload-icon">&#128247;</div>
+                            <div class="upload-text">Upload a drawing</div>
+                            <div class="upload-sub">Drag & drop or take a photo</div>
+                        </div>
+                        <div class="drawing-reveal" id="drawingReveal">
+                            <img src="Image1-test.jpg" alt="Child's drawing">
+                            <div class="drawing-filename">Image1-test.jpg uploaded</div>
+                        </div>
+                    </div>
+                    <div class="demo-label">A child's drawing is uploaded</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2: AI TRANSFORMS -->
+    <div class="divider"><hr></div>
+    <div class="step-section" id="step2">
+        <div class="step-layout reverse">
+            <div class="fade-up">
+                <div class="step-number" style="color: #6366f1;">02</div>
+                <div class="section-tag" style="color: #6366f1;">TRANSFORM</div>
+                <h2 class="step-title">AI brings it to life</h2>
+                <p class="step-desc">Our AI analyzes the drawing, understands the character's features, and generates a polished, animated version — keeping the original creative spirit intact.</p>
+                <ul class="step-features">
+                    <li><span class="check" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">&#10003;</span> Preserves the child's creative vision</li>
+                    <li><span class="check" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">&#10003;</span> Pixar-quality animated character</li>
+                    <li><span class="check" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">&#10003;</span> Characters saved to your library</li>
+                </ul>
+            </div>
+            <div class="demo-container fade-up">
+                <div class="transform-demo" id="transformDemo">
+                    <div class="transform-side left">
+                        <div class="label" style="color: #94a3b8;">Original Drawing</div>
+                        <div class="sketch-img-box">
+                            <img src="Image1-test.jpg" alt="Original child drawing">
+                        </div>
+                    </div>
+                    <div class="transform-divider-line"></div>
+                    <div class="processing-badge" id="processingBadge">
+                        <div class="spinner"></div>
+                        AI Processing...
+                    </div>
+                    <div class="transform-arrow" id="transformArrow">&#10132;</div>
+                    <div class="transform-side right">
+                        <div class="label" style="color: #a5b4fc;">AI Character</div>
+                        <div class="ai-character-img-box" id="aiCharBox">
+                            <img src="output/ai_character_1.png" alt="AI generated character">
+                        </div>
+                    </div>
+                    <div class="demo-label">Sketch transforms into AI character</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 3: ANIMATED STORY VIDEO -->
+    <div class="divider"><hr></div>
+    <div class="step-section" id="step3">
+        <div class="step-layout">
+            <div class="fade-up">
+                <div class="step-number" style="color: #34d399;">03</div>
+                <div class="section-tag" style="color: #34d399;">CREATE</div>
+                <h2 class="step-title">It speaks, teaches, tells stories</h2>
+                <p class="step-desc">Pick a topic — honesty, sharing, science, Arabic folktales. Your character stars in a fully animated video story, complete with narration and dialogue.</p>
+                <ul class="step-features">
+                    <li><span class="check" style="background: rgba(52, 211, 153, 0.15); color: #34d399;">&#10003;</span> Full animated story videos</li>
+                    <li><span class="check" style="background: rgba(52, 211, 153, 0.15); color: #34d399;">&#10003;</span> AI-generated narration and dialogue</li>
+                    <li><span class="check" style="background: rgba(52, 211, 153, 0.15); color: #34d399;">&#10003;</span> Educational lessons across subjects</li>
+                    <li><span class="check" style="background: rgba(52, 211, 153, 0.15); color: #34d399;">&#10003;</span> Arabic and English voice generation</li>
+                </ul>
+            </div>
+            <div class="demo-container fade-up">
+                <div class="video-demo" id="videoDemo">
+                    <div class="video-wrapper">
+                        <video id="storyVideo" preload="metadata">
+                            <source src="output/khayaal_honesty_story_FINAL.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="video-overlay" id="videoOverlay">
+                        <div class="play-btn"><div class="play-icon"></div></div>
+                        <div class="video-overlay-text">Watch: "Bubbles Learns Honesty"</div>
+                        <div class="video-overlay-sub">43-second AI-generated story video</div>
+                    </div>
+                    <div class="video-info" id="videoInfo">
+                        <div class="video-tag">
+                            <span class="tag-dot" style="background: #34d399;"></span>
+                            AI Generated
+                        </div>
+                        <div class="video-tag">
+                            <span class="tag-dot" style="background: #f472b6;"></span>
+                            Veo 3.1
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIPELINE SHOWCASE -->
+    <div class="divider"><hr></div>
+    <div class="pipeline-section">
+        <div class="section-tag fade-up" style="color: #a5b4fc;">THE FULL PIPELINE</div>
+        <h2 class="section-title fade-up">From imagination to animation</h2>
+        <p class="section-desc fade-up" style="margin: 0 auto;">Every step powered by AI — GPT-4 Vision analyzes, DALL-E creates, Veo animates</p>
+        <div class="pipeline-flow fade-up">
+            <div class="pipeline-card">
+                <img src="Image1-test.jpg" alt="Child drawing">
+                <div class="pipe-label">Child's Drawing</div>
+                <div class="pipe-sub">Any sketch or photo</div>
+            </div>
+            <div class="pipeline-arrow">&#10132;</div>
+            <div class="pipeline-card">
+                <img src="output/ai_character_1.png" alt="AI character">
+                <div class="pipe-label">AI Character</div>
+                <div class="pipe-sub">GPT-4 Vision + DALL-E</div>
+            </div>
+            <div class="pipeline-arrow">&#10132;</div>
+            <div class="pipeline-card">
+                <img src="output/ai_character_3_teaching.png" alt="Teaching pose">
+                <div class="pipe-label">Story Script</div>
+                <div class="pipe-sub">GPT-4 writes the lesson</div>
+            </div>
+            <div class="pipeline-arrow">&#10132;</div>
+            <div class="pipeline-card" style="border-color: rgba(52, 211, 153, 0.3);">
+                <video src="output/scene_01.mp4" muted autoplay loop playsinline style="width:100%; height:120px; object-fit:cover; border-radius:10px; margin-bottom:12px;"></video>
+                <div class="pipe-label" style="color: #34d399;">Animated Video</div>
+                <div class="pipe-sub">Google Veo 3.1</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- USE CASES -->
+    <div class="divider"><hr></div>
+    <section class="use-cases" id="usecases">
+        <div class="section-tag fade-up" style="color: #fb923c;">USE CASES</div>
+        <h2 class="section-title fade-up">One platform, endless possibilities</h2>
+        <p class="section-desc fade-up">Khayaal isn't just for education. It's a creative AI platform for anyone who wants to bring drawings to life.</p>
+        <div class="uc-grid stagger">
+            <div class="uc-card fade-up">
+                <div class="uc-bar" style="background: #6366f1;"></div>
+                <h3>Educational Content</h3>
+                <p>Personalized lessons where children learn from their own characters. Math, science, languages — taught by their imagination.</p>
+            </div>
+            <div class="uc-card fade-up">
+                <div class="uc-bar" style="background: #f472b6;"></div>
+                <h3>Arabic Storytelling</h3>
+                <p>Bring Arabic folktales and cultural stories to life with custom animated characters. Preserving heritage through creativity.</p>
+            </div>
+            <div class="uc-card fade-up">
+                <div class="uc-bar" style="background: #34d399;"></div>
+                <h3>Content Creation</h3>
+                <p>Creators and storytellers can produce animated videos without any animation skills. From idea to video in minutes.</p>
+            </div>
+            <div class="uc-card fade-up">
+                <div class="uc-bar" style="background: #fb923c;"></div>
+                <h3>Brand & Marketing</h3>
+                <p>Businesses can create speaking mascots and branded characters from simple sketches. Stand out with animated content.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA / SCALE7 -->
+    <div class="divider"><hr></div>
+    <section class="cta-section">
+        <div class="cta-box fade-up">
+            <h2>Built at SCALE7</h2>
+            <p>Khayaal is being developed at SCALE7's Future Creators Hackathon — empowering creative entrepreneurs to shape Qatar's creative economy.</p>
+            <div class="cta-badge">&#9733; Arabic-first &nbsp;|&nbsp; AI-powered &nbsp;|&nbsp; Made in Qatar</div>
+        </div>
+    </section>
+
+    <footer><p>Khayaal &copy; 2026 &nbsp;|&nbsp; SCALE7 Future Creators Hackathon &nbsp;|&nbsp; Doha, Qatar</p></footer>
+
+    <script>
+        // ===== SCROLL OBSERVER =====
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+        // ===== DEMO 1: UPLOAD ANIMATION =====
+        const uploadDemo = document.getElementById('uploadDemo');
+        let uploadStarted = false;
+
+        function runUploadAnimation() {
+            const placeholder = document.getElementById('uploadPlaceholder');
+            const reveal = document.getElementById('drawingReveal');
+
+            // Reset
+            placeholder.classList.remove('hidden');
+            reveal.classList.remove('show');
+
+            // After 1.5s, hide placeholder and show drawing
+            setTimeout(() => {
+                placeholder.classList.add('hidden');
+            }, 1500);
+            setTimeout(() => {
+                reveal.classList.add('show');
+            }, 2000);
+        }
+
+        const uploadObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !uploadStarted) {
+                    uploadStarted = true;
+                    runUploadAnimation();
+                    setInterval(runUploadAnimation, 7000);
+                }
+            });
+        }, { threshold: 0.3 });
+        uploadObserver.observe(uploadDemo);
+
+        // ===== DEMO 2: TRANSFORM ANIMATION =====
+        const transformDemo = document.getElementById('transformDemo');
+        let transformStarted = false;
+
+        function runTransformAnimation() {
+            const badge = document.getElementById('processingBadge');
+            const arrow = document.getElementById('transformArrow');
+            const charBox = document.getElementById('aiCharBox');
+
+            // Reset
+            badge.classList.remove('show');
+            arrow.classList.remove('show');
+            charBox.classList.remove('show');
+
+            // Step 1: Show processing
+            setTimeout(() => badge.classList.add('show'), 800);
+            // Step 2: Hide processing, show arrow
+            setTimeout(() => {
+                badge.classList.remove('show');
+                arrow.classList.add('show');
+            }, 2800);
+            // Step 3: Show AI character
+            setTimeout(() => {
+                arrow.classList.remove('show');
+                charBox.classList.add('show');
+            }, 3800);
+        }
+
+        const transformObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !transformStarted) {
+                    transformStarted = true;
+                    runTransformAnimation();
+                    setInterval(runTransformAnimation, 8000);
+                }
+            });
+        }, { threshold: 0.3 });
+        transformObserver.observe(transformDemo);
+
+        // ===== DEMO 3: VIDEO PLAYER =====
+        const video = document.getElementById('storyVideo');
+        const overlay = document.getElementById('videoOverlay');
+        const videoInfo = document.getElementById('videoInfo');
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            videoInfo.classList.add('show');
+            video.play();
+        });
+
+        video.addEventListener('ended', () => {
+            overlay.classList.remove('hidden');
+            videoInfo.classList.remove('show');
+        });
+
+        video.addEventListener('click', () => {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        });
+    </script>
+
+</body>
+</html>
