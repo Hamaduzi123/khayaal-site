@@ -226,6 +226,25 @@
 
         .cat-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 500px; }
 
+        .custom-topic-card {
+            display: flex; align-items: center; gap: 16px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(244,114,182,0.08) 100%);
+            border: 1px dashed rgba(99,102,241,0.35); border-radius: 16px;
+            padding: 18px 20px; margin-bottom: 20px; cursor: pointer;
+            transition: all 0.3s; position: relative;
+        }
+        .custom-topic-card:hover { border-color: rgba(99,102,241,0.6); background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(244,114,182,0.1) 100%); transform: translateY(-2px); }
+        .custom-topic-icon { font-size: 28px; flex-shrink: 0; }
+        .custom-topic-text { flex: 1; }
+        .custom-topic-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+        .custom-topic-desc { font-size: 12px; color: #94a3b8; }
+        .custom-topic-input {
+            background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px; padding: 8px 14px; font-size: 11px; color: #64748b;
+            font-style: italic; white-space: nowrap;
+        }
+        .custom-topic-arrow { font-size: 22px; color: #6366f1; font-weight: 700; }
+
         /* ===== SCREEN 5: BEHAVIORAL TOPICS ===== */
         .topic-list { display: flex; flex-direction: column; gap: 8px; max-width: 600px; }
         .topic-card {
@@ -476,7 +495,20 @@
             </div>
         </div>
 
-        <div class="section-title">Story Categories</div>
+        <!-- Custom Topic -->
+        <div class="custom-topic-card" onclick="goToScreen(5)">
+            <div class="custom-topic-icon">&#9997;&#65039;</div>
+            <div class="custom-topic-text">
+                <div class="custom-topic-title">Create Your Own Topic</div>
+                <div class="custom-topic-desc">Type any topic and your character will star in a custom story</div>
+            </div>
+            <div class="custom-topic-input">
+                <span>e.g. "Why is the sky blue?" or "Brushing teeth"</span>
+            </div>
+            <div class="custom-topic-arrow">&#8250;</div>
+        </div>
+
+        <div class="section-title">Or Pick a Category</div>
         <div class="cat-grid">
             <div class="cat-card highlight" onclick="goToScreen(5)">
                 <div class="cat-icon">&#128156;</div>
