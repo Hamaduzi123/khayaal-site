@@ -197,7 +197,7 @@
 
         .section-title {
             font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase;
-            letter-spacing: 1.5px; margin-bottom: 12px; margin-top: 24px;
+            letter-spacing: 1.5px; margin-bottom: 10px; margin-top: 18px;
         }
         .section-title:first-of-type { margin-top: 0; }
 
@@ -226,24 +226,21 @@
 
         .cat-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 500px; }
 
-        .custom-topic-card {
-            display: flex; align-items: center; gap: 16px;
-            background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(244,114,182,0.08) 100%);
-            border: 1px dashed rgba(99,102,241,0.35); border-radius: 16px;
-            padding: 18px 20px; margin-bottom: 20px; cursor: pointer;
-            transition: all 0.3s; position: relative;
+        .custom-topic-bar {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(30,41,59,0.6); border: 1px dashed rgba(99,102,241,0.35);
+            border-radius: 12px; padding: 10px 16px; margin-bottom: 16px;
+            cursor: pointer; transition: all 0.3s;
         }
-        .custom-topic-card:hover { border-color: rgba(99,102,241,0.6); background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(244,114,182,0.1) 100%); transform: translateY(-2px); }
-        .custom-topic-icon { font-size: 28px; flex-shrink: 0; }
-        .custom-topic-text { flex: 1; }
-        .custom-topic-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 3px; }
-        .custom-topic-desc { font-size: 12px; color: #94a3b8; }
-        .custom-topic-input {
-            background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px; padding: 8px 14px; font-size: 11px; color: #64748b;
-            font-style: italic; white-space: nowrap;
+        .custom-topic-bar:hover { border-color: rgba(99,102,241,0.6); background: rgba(30,41,59,0.9); }
+        .custom-topic-bar .ct-icon { font-size: 18px; }
+        .custom-topic-bar .ct-placeholder {
+            flex: 1; font-size: 13px; color: #64748b; font-style: italic;
         }
-        .custom-topic-arrow { font-size: 22px; color: #6366f1; font-weight: 700; }
+        .custom-topic-bar .ct-label {
+            font-size: 11px; font-weight: 700; color: #6366f1;
+            background: rgba(99,102,241,0.1); padding: 4px 10px; border-radius: 6px;
+        }
 
         /* ===== SCREEN 5: BEHAVIORAL TOPICS ===== */
         .topic-list { display: flex; flex-direction: column; gap: 8px; max-width: 600px; }
@@ -495,17 +492,11 @@
             </div>
         </div>
 
-        <!-- Custom Topic -->
-        <div class="custom-topic-card" onclick="goToScreen(5)">
-            <div class="custom-topic-icon">&#9997;&#65039;</div>
-            <div class="custom-topic-text">
-                <div class="custom-topic-title">Create Your Own Topic</div>
-                <div class="custom-topic-desc">Type any topic and your character will star in a custom story</div>
-            </div>
-            <div class="custom-topic-input">
-                <span>e.g. "Why is the sky blue?" or "Brushing teeth"</span>
-            </div>
-            <div class="custom-topic-arrow">&#8250;</div>
+        <!-- Custom Topic Bar -->
+        <div class="custom-topic-bar" onclick="goToScreen(5)">
+            <span class="ct-icon">&#9997;&#65039;</span>
+            <span class="ct-placeholder">Type your own topic... e.g. "Why is the sky blue?"</span>
+            <span class="ct-label">Custom</span>
         </div>
 
         <div class="section-title">Or Pick a Category</div>
