@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khayaal - Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { font-family: 'Inter', sans-serif; background: #070b14; color: #fff; height: 100vh; overflow: hidden; }
+
+        /* ===== TOP NAV ===== */
+        .top-nav {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px; z-index: 100;
+            background: rgba(7, 11, 20, 0.9); backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px;
+        }
+        .nav-brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .nav-brand h1 {
+            font-size: 20px; font-weight: 900; letter-spacing: -0.8px;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .nav-brand .ar { color: #f472b6; font-size: 14px; font-weight: 600; }
+        .nav-links { display: flex; gap: 4px; }
+        .nav-links button {
+            background: none; border: none; color: #64748b; font-family: 'Inter', sans-serif;
+            font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .nav-links button:hover { color: #e2e8f0; background: rgba(255,255,255,0.05); }
+        .nav-links button.active { color: #fff; background: rgba(99,102,241,0.15); }
+
+        /* ===== SCREENS ===== */
+        .screen {
+            position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
+            opacity: 0; transform: translateY(16px);
+            transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .screen.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+        .screen-inner {
+            max-width: 1100px; width: 100%; padding: 0 40px;
+        }
+
+        /* ===== BACK LINK ===== */
+        .back-link {
+            display: inline-flex; align-items: center; gap: 5px; color: #64748b;
+            font-size: 12px; font-weight: 600; cursor: pointer; margin-bottom: 16px;
+            transition: color 0.2s; background: none; border: none; font-family: 'Inter', sans-serif;
+        }
+        .back-link:hover { color: #a5b4fc; }
+        .back-link .arrow { font-size: 16px; }
+
+        /* ===== SCREEN 1: HOME ===== */
+        .home-hero { text-align: center; margin-bottom: 28px; }
+        .home-hero h1 {
+            font-size: 52px; font-weight: 900; letter-spacing: -2.5px; line-height: 1;
+            background: linear-gradient(135deg, #fff 0%, #c7d2fe 40%, #a5b4fc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 2px;
+        }
+        .home-hero .ar { font-size: 24px; color: #f472b6; font-weight: 600; margin-bottom: 6px; }
+        .home-hero p { font-size: 15px; color: #64748b; }
+
+        .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+        .upload-card {
+            background: linear-gradient(145deg, rgba(30,41,59,0.6) 0%, rgba(23,32,51,0.8) 100%);
+            border: 2px dashed rgba(244, 114, 182, 0.2); border-radius: 20px;
+            padding: 36px 28px; text-align: center; cursor: pointer;
+            transition: all 0.3s; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .upload-card:hover {
+            border-color: rgba(244, 114, 182, 0.45); transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(244,114,182,0.08);
+        }
+        .upload-icon {
+            font-size: 36px; margin-bottom: 12px;
+            width: 64px; height: 64px; border-radius: 16px;
+            background: rgba(244,114,182,0.08); display: inline-flex;
+            align-items: center; justify-content: center;
+        }
+        .upload-card .title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+        .upload-card .sub { font-size: 12px; color: #64748b; }
+
+        .chars-panel {
+            background: linear-gradient(145deg, rgba(30,41,59,0.5) 0%, rgba(23,32,51,0.6) 100%);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 24px;
+        }
+        .chars-panel .panel-title {
+            font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 14px;
+        }
+        .char-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .char-slot {
+            aspect-ratio: 1; border-radius: 14px; overflow: hidden; cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.05); transition: all 0.3s;
+            position: relative; background: rgba(15,23,42,0.5);
+        }
+        .char-slot:hover { border-color: rgba(99,102,241,0.4); transform: scale(1.04); }
+        .char-slot img { width: 100%; height: 100%; object-fit: cover; }
+        .char-slot.empty {
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: #334155; border-style: dashed; border-color: rgba(255,255,255,0.08);
+        }
+        .char-name {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 4px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.85));
+            font-size: 10px; text-align: center; font-weight: 600;
+        }
+
+        /* ===== SCREEN 2: PROCESSING ===== */
+        .process-card {
+            background: linear-gradient(145deg, rgba(30,41,59,0.5) 0%, rgba(23,32,51,0.6) 100%);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
+            padding: 36px 48px; max-width: 440px; width: 100%; text-align: center;
+            margin: 0 auto;
+        }
+        .process-drawing {
+            width: 120px; height: 120px; border-radius: 20px; overflow: hidden;
+            border: 2px solid rgba(244, 114, 182, 0.2); margin: 0 auto 20px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+        }
+        .process-drawing img { width: 100%; height: 100%; object-fit: cover; }
+        .process-spinner {
+            width: 36px; height: 36px; border: 3px solid rgba(99,102,241,0.15);
+            border-top-color: #6366f1; border-radius: 50%; margin: 0 auto 12px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .process-text { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+        .process-sub { font-size: 12px; color: #64748b; }
+        .process-steps {
+            margin-top: 20px; text-align: left;
+            background: rgba(15,23,42,0.5); border-radius: 14px;
+            padding: 14px 18px; border: 1px solid rgba(255,255,255,0.04);
+        }
+        .process-step {
+            display: flex; align-items: center; gap: 12px; padding: 8px 0;
+            font-size: 13px; color: #475569; transition: all 0.4s; font-weight: 500;
+        }
+        .process-step.done { color: #34d399; }
+        .process-step.active { color: #c7d2fe; }
+        .process-step .step-dot {
+            width: 24px; height: 24px; border-radius: 8px; border: 2px solid #334155;
+            display: flex; align-items: center; justify-content: center; font-size: 11px;
+            flex-shrink: 0; transition: all 0.4s; font-weight: 700;
+        }
+        .process-step.done .step-dot { background: #34d399; border-color: #34d399; color: #fff; }
+        .process-step.active .step-dot { border-color: #6366f1; background: rgba(99,102,241,0.15); color: #a5b4fc; }
+
+        /* ===== SCREEN 3: CHARACTER READY ===== */
+        .reveal-layout { text-align: center; }
+        .reveal-badge {
+            background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2);
+            padding: 6px 16px; border-radius: 16px; font-size: 11px; color: #34d399;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 20px; display: inline-block;
+        }
+        .reveal-glow {
+            width: 180px; height: 180px; border-radius: 28px; overflow: hidden;
+            border: 2px solid rgba(99, 102, 241, 0.3); margin: 0 auto 24px;
+            box-shadow: 0 0 60px rgba(99, 102, 241, 0.15), 0 16px 48px rgba(0,0,0,0.5);
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(99,102,241,0.1), 0 16px 48px rgba(0,0,0,0.5); }
+            50% { box-shadow: 0 0 80px rgba(99,102,241,0.25), 0 16px 48px rgba(0,0,0,0.5); }
+        }
+        .reveal-glow img { width: 100%; height: 100%; object-fit: cover; }
+        .reveal-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.6px; }
+        .reveal-sub { font-size: 14px; color: #94a3b8; margin-bottom: 24px; }
+        .btn {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: #fff; border: none; padding: 14px 40px;
+            border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(99,102,241,0.45); }
+
+        /* ===== SCREEN 4: TOPIC CATEGORIES ===== */
+        .topics-header {
+            display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+        }
+        .topics-header img {
+            width: 48px; height: 48px; border-radius: 14px; object-fit: cover;
+            border: 2px solid rgba(99,102,241,0.25);
+        }
+        .topics-header .info h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.6px; margin-bottom: 1px; }
+        .topics-header .info p { font-size: 13px; color: #34d399; font-weight: 500; }
+
+        .section-title {
+            font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 10px; margin-top: 18px;
+        }
+        .section-title:first-of-type { margin-top: 0; }
+
+        .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .cat-card {
+            background: rgba(30,41,59,0.6); border-radius: 16px; padding: 20px 14px;
+            border: 1px solid rgba(255,255,255,0.04); cursor: pointer;
+            transition: all 0.3s; text-align: center;
+        }
+        .cat-card:hover {
+            border-color: rgba(99,102,241,0.25); transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        .cat-card .cat-icon {
+            font-size: 28px; margin-bottom: 8px; width: 50px; height: 50px;
+            border-radius: 14px; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .cat-card .cat-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+        .cat-card .cat-count { font-size: 11px; color: #64748b; font-weight: 500; }
+        .cat-card.highlight {
+            border-color: rgba(99,102,241,0.25);
+            background: linear-gradient(145deg, rgba(30,41,59,0.8) 0%, rgba(30,27,75,0.4) 100%);
+            box-shadow: 0 4px 16px rgba(99,102,241,0.08);
+        }
+        .cat-card.highlight .cat-icon { background: rgba(99,102,241,0.1); }
+
+        .cat-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 500px; }
+
+        .custom-topic-bar {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(30,41,59,0.6); border: 1px dashed rgba(99,102,241,0.35);
+            border-radius: 12px; padding: 10px 16px; margin-bottom: 16px;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .custom-topic-bar:hover { border-color: rgba(99,102,241,0.6); background: rgba(30,41,59,0.9); }
+        .custom-topic-bar .ct-icon { font-size: 18px; }
+        .custom-topic-bar .ct-placeholder {
+            flex: 1; font-size: 13px; color: #64748b; font-style: italic;
+        }
+        .custom-topic-bar .ct-label {
+            font-size: 11px; font-weight: 700; color: #6366f1;
+            background: rgba(99,102,241,0.1); padding: 4px 10px; border-radius: 6px;
+        }
+
+        /* ===== SCREEN 5: BEHAVIORAL TOPICS ===== */
+        .topic-list { display: flex; flex-direction: column; gap: 8px; max-width: 600px; }
+        .topic-card {
+            background: rgba(30,41,59,0.6); border-radius: 14px; padding: 12px 16px;
+            border: 1px solid rgba(255,255,255,0.04); cursor: pointer;
+            transition: all 0.3s; display: flex; align-items: center; gap: 14px;
+        }
+        .topic-card:hover {
+            border-color: rgba(99,102,241,0.25); transform: translateX(4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        .topic-card .topic-icon {
+            width: 42px; height: 42px; border-radius: 12px; display: flex;
+            align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+        }
+        .topic-card .topic-info { flex: 1; }
+        .topic-card .topic-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+        .topic-card .topic-desc { font-size: 12px; color: #64748b; }
+        .topic-card .topic-arrow { color: #334155; font-size: 20px; transition: all 0.3s; }
+        .topic-card.selected {
+            border-color: rgba(99,102,241,0.35);
+            background: linear-gradient(145deg, rgba(30,41,59,0.8) 0%, rgba(30,27,75,0.35) 100%);
+            box-shadow: 0 4px 16px rgba(99,102,241,0.08);
+        }
+        .topic-card.selected .topic-arrow { color: #6366f1; transform: translateX(3px); }
+
+        /* ===== SCREEN 6: GENERATING ===== */
+        .gen-card {
+            background: linear-gradient(145deg, rgba(30,41,59,0.5) 0%, rgba(23,32,51,0.6) 100%);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
+            padding: 36px 56px; max-width: 440px; width: 100%; text-align: center;
+            margin: 0 auto;
+        }
+        .gen-character {
+            width: 100px; height: 100px; border-radius: 22px; overflow: hidden;
+            margin: 0 auto 20px; border: 2px solid rgba(52,211,153,0.2);
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .gen-character img { width: 100%; height: 100%; object-fit: cover; }
+        .gen-badge {
+            background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2);
+            padding: 5px 14px; border-radius: 8px; font-size: 11px; color: #a5b4fc;
+            font-weight: 600; display: inline-block; margin-bottom: 14px;
+        }
+        .gen-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+        .gen-topic { font-size: 14px; color: #34d399; margin-bottom: 24px; font-weight: 600; }
+        .gen-progress-bar {
+            width: 100%; height: 6px; background: rgba(15,23,42,0.8); border-radius: 3px;
+            overflow: hidden; margin-bottom: 12px;
+        }
+        .gen-progress-fill {
+            height: 100%; background: linear-gradient(90deg, #6366f1, #34d399);
+            border-radius: 3px; width: 0%; transition: width 0.4s ease;
+        }
+        .gen-status { font-size: 13px; color: #64748b; font-weight: 500; }
+
+        /* ===== SCREEN 7: VIDEO PLAYER ===== */
+        .player-layout {
+            display: grid; grid-template-columns: 1fr 320px; gap: 28px; align-items: start;
+        }
+        .player-video-wrap {
+            background: #000; border-radius: 16px; overflow: hidden; position: relative;
+            box-shadow: 0 8px 36px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.06);
+        }
+        .player-video-wrap video { width: 100%; display: block; aspect-ratio: 16/9; object-fit: contain; }
+        .player-overlay {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 10px;
+            background: rgba(0,0,0,0.45); cursor: pointer;
+            transition: opacity 0.3s; backdrop-filter: blur(2px);
+        }
+        .player-overlay.hidden { opacity: 0; pointer-events: none; }
+        .player-play {
+            width: 60px; height: 60px; border-radius: 50%; background: rgba(52,211,153,0.9);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 24px rgba(52,211,153,0.4); transition: transform 0.3s;
+        }
+        .player-play:hover { transform: scale(1.08); }
+        .player-play-icon {
+            width: 0; height: 0; border-style: solid;
+            border-width: 11px 0 11px 18px;
+            border-color: transparent transparent transparent #fff; margin-left: 3px;
+        }
+        .player-overlay-text { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 600; }
+
+        .player-sidebar {
+            background: linear-gradient(145deg, rgba(30,41,59,0.5) 0%, rgba(23,32,51,0.6) 100%);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 24px;
+        }
+        .player-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.4px; }
+        .player-meta { font-size: 12px; color: #64748b; margin-bottom: 14px; font-weight: 500; }
+        .player-tags { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+        .player-tag {
+            background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.15);
+            padding: 5px 12px; border-radius: 8px; font-size: 11px; color: #a5b4fc; font-weight: 600;
+        }
+        .player-details { margin-bottom: 18px; }
+        .player-details .detail-label {
+            font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 6px;
+        }
+        .player-details .detail-text { font-size: 13px; color: #94a3b8; line-height: 1.5; }
+
+        .player-actions { display: flex; flex-direction: column; gap: 8px; }
+        .action-btn {
+            width: 100%; padding: 12px; border-radius: 12px; border: none;
+            font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700;
+            cursor: pointer; transition: all 0.3s; display: flex; align-items: center;
+            justify-content: center; gap: 6px;
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: #fff;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.25);
+        }
+        .action-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,0.35); }
+        .action-btn.secondary {
+            background: rgba(30,41,59,0.8); color: #94a3b8; border: 1px solid rgba(255,255,255,0.06);
+        }
+        .action-btn.secondary:hover { border-color: rgba(255,255,255,0.15); color: #e2e8f0; }
+        .action-row { display: flex; gap: 8px; }
+        .action-row .action-btn { flex: 1; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .home-grid { grid-template-columns: 1fr; }
+            .cat-grid { grid-template-columns: repeat(2, 1fr); }
+            .player-layout { grid-template-columns: 1fr; }
+            .screen-inner { padding: 0 20px; }
+            .top-nav { padding: 0 20px; }
+            .home-hero h1 { font-size: 40px; }
+        }
+        @media (max-height: 700px) {
+            .home-hero h1 { font-size: 40px; }
+            .home-hero .ar { font-size: 20px; }
+            .home-hero { margin-bottom: 16px; }
+            .upload-card { padding: 24px 20px; }
+            .upload-icon { width: 48px; height: 48px; font-size: 28px; margin-bottom: 8px; }
+            .process-drawing { width: 100px; height: 100px; margin-bottom: 14px; }
+            .reveal-glow { width: 140px; height: 140px; margin-bottom: 18px; }
+            .gen-character { width: 80px; height: 80px; margin-bottom: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="nav-brand" onclick="window.location.href='/'">
+        <h1>Khayaal</h1>
+        <span class="ar">&#1582;&#1610;&#1575;&#1604;</span>
+    </div>
+    <div class="nav-links">
+        <button class="active" onclick="goToScreen(1)">Create</button>
+        <button onclick="window.location.href='/gallery.html'">Gallery</button>
+        <button onclick="window.location.href='/pricing.html'">Pricing</button>
+        <button onclick="window.location.href='/'">Home</button>
+    </div>
+</nav>
+
+<!-- Hidden file input for real uploads -->
+<input type="file" id="drawingFileInput" accept="image/*" style="display:none">
+
+<!-- Toast for API status -->
+<div id="apiToast" style="position:fixed; bottom:24px; right:24px; max-width:340px; background:rgba(15,23,42,0.95); border:1px solid rgba(99,102,241,0.3); padding:14px 18px; border-radius:12px; font-size:13px; color:#cbd5e1; z-index:200; opacity:0; transform:translateY(20px); transition:all 0.3s; pointer-events:none; backdrop-filter:blur(10px);"></div>
+
+<!-- SCREEN 1: HOME -->
+<div class="screen active" id="screen1">
+    <div class="screen-inner">
+        <div class="home-hero">
+            <h1>Khayaal</h1>
+            <div class="ar">&#1582;&#1610;&#1575;&#1604;</div>
+            <p>Turn any drawing into animated, speaking characters</p>
+        </div>
+        <div class="home-grid">
+            <div class="upload-card" onclick="document.getElementById('drawingFileInput').click()">
+                <div class="upload-icon">&#128247;</div>
+                <div class="title">Upload a Drawing</div>
+                <div class="sub">Take a photo or upload from your gallery</div>
+                <div style="margin-top:14px; font-size:11px; color:#475569;">JPG, PNG &middot; up to 10 MB</div>
+            </div>
+            <div class="chars-panel">
+                <div class="panel-title">Try a Sample Character</div>
+                <div class="char-grid">
+                    <div class="char-slot" onclick="useSampleCharacter('output/ai_character_1.png','Bubbles')">
+                        <img src="output/ai_character_1.png" alt="Bubbles">
+                        <div class="char-name">Bubbles</div>
+                    </div>
+                    <div class="char-slot" onclick="useSampleCharacter('characters/bubbles_wave.png','Bubbles')">
+                        <img src="characters/bubbles_wave.png" alt="Bubbles waving">
+                        <div class="char-name">Wave</div>
+                    </div>
+                    <div class="char-slot" onclick="useSampleCharacter('characters/bubbles_teaching.png','Bubbles')">
+                        <img src="characters/bubbles_teaching.png" alt="Bubbles teaching">
+                        <div class="char-name">Teach</div>
+                    </div>
+                    <div class="char-slot empty" onclick="document.getElementById('drawingFileInput').click()">+</div>
+                    <div class="char-slot empty" onclick="document.getElementById('drawingFileInput').click()">+</div>
+                    <div class="char-slot empty" onclick="document.getElementById('drawingFileInput').click()">+</div>
+                </div>
+                <div style="margin-top:14px; font-size:11px; color:#475569; text-align:center;">Tap a sample to skip drawing upload</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 2: PROCESSING -->
+<div class="screen" id="screen2">
+    <div class="screen-inner">
+        <div class="process-card">
+            <div class="process-drawing">
+                <img src="Image1-test.jpg" alt="Child's drawing">
+            </div>
+            <div class="process-spinner" id="processSpinner"></div>
+            <div class="process-text" id="processText">Analyzing drawing...</div>
+            <div class="process-sub" id="processSub">This takes about 30 seconds</div>
+            <div class="process-steps">
+                <div class="process-step active" id="pStep1">
+                    <div class="step-dot">1</div>
+                    Analyzing drawing with AI Vision
+                </div>
+                <div class="process-step" id="pStep2">
+                    <div class="step-dot">2</div>
+                    Understanding character features
+                </div>
+                <div class="process-step" id="pStep3">
+                    <div class="step-dot">3</div>
+                    Generating animated character
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 3: CHARACTER READY -->
+<div class="screen" id="screen3">
+    <div class="screen-inner">
+        <div class="reveal-layout">
+            <div class="reveal-badge">Character Created</div><br>
+            <div class="reveal-glow">
+                <img src="output/ai_character_1.png" alt="AI Character">
+            </div>
+            <div class="reveal-title">Your Character is Ready!</div>
+            <div class="reveal-sub">AI-generated from your drawing</div>
+            <button class="btn" onclick="goToScreen(4)">Create a Story &#8594;</button>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 4: TOPIC CATEGORIES -->
+<div class="screen" id="screen4">
+    <div class="screen-inner">
+        <button class="back-link" onclick="goToScreen(3)"><span class="arrow">&#8249;</span> Back</button>
+        <div class="topics-header">
+            <img src="output/ai_character_1.png" alt="Character">
+            <div class="info">
+                <h2>Choose a Story Topic</h2>
+                <p>Your character is ready to star in a story</p>
+            </div>
+        </div>
+
+        <!-- Custom Topic Bar -->
+        <div class="custom-topic-bar" onclick="goToScreen(5)">
+            <span class="ct-icon">&#9997;&#65039;</span>
+            <span class="ct-placeholder">Create your own topic... e.g. "Why is the sky blue?"</span>
+            <span class="ct-label">Custom</span>
+        </div>
+
+        <div class="section-title">Or Pick a Category</div>
+        <div class="cat-grid">
+            <div class="cat-card highlight" onclick="goToScreen(5)">
+                <div class="cat-icon">&#128156;</div>
+                <div class="cat-name">Behavioral</div>
+                <div class="cat-count">5 topics</div>
+            </div>
+            <div class="cat-card" onclick="pickStory('counting','Counting 1-5','videos/counting.mp4','Bubbles explores a magical garden and learns to count from 1 to 5.')">
+                <div class="cat-icon" style="background: rgba(244,114,182,0.08);">&#128218;</div>
+                <div class="cat-name">Learning</div>
+                <div class="cat-count">3 topics</div>
+            </div>
+            <div class="cat-card">
+                <div class="cat-icon" style="background: rgba(251,146,60,0.08);">&#127981;</div>
+                <div class="cat-name">Arabic Folktales</div>
+                <div class="cat-count">2 stories</div>
+            </div>
+            <div class="cat-card">
+                <div class="cat-icon" style="background: rgba(52,211,153,0.08);">&#127879;</div>
+                <div class="cat-name">Occasions</div>
+                <div class="cat-count">4 templates</div>
+            </div>
+        </div>
+
+        <div class="section-title">Seasonal</div>
+        <div class="cat-grid-2">
+            <div class="cat-card" onclick="pickStory('ramadan','Ramadan Kareem','videos/ramadan.mp4','Bubbles spots the crescent moon, helps prepare iftar, and shares Ramadan joy with the village.')">
+                <div class="cat-icon" style="background: rgba(251,191,36,0.08);">&#127772;</div>
+                <div class="cat-name">Ramadan</div>
+                <div class="cat-count">3 messages</div>
+            </div>
+            <div class="cat-card" onclick="pickStory('eid','Eid Mubarak','videos/eid.mp4','Bubbles wakes up on Eid morning and celebrates with friends and family.')">
+                <div class="cat-icon" style="background: rgba(244,114,182,0.08);">&#127878;</div>
+                <div class="cat-name">Eid Greetings</div>
+                <div class="cat-count">2 messages</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 5: BEHAVIORAL TOPICS -->
+<div class="screen" id="screen5">
+    <div class="screen-inner">
+        <button class="back-link" onclick="goToScreen(4)"><span class="arrow">&#8249;</span> Back</button>
+        <div class="topics-header">
+            <img src="output/ai_character_1.png" alt="Character">
+            <div class="info">
+                <h2>Behavioral Stories</h2>
+                <p>Pick a lesson for your character to teach</p>
+            </div>
+        </div>
+
+        <div class="topic-list">
+            <div class="topic-card selected" onclick="pickStory('honesty','Honesty','videos/honesty.mp4','Bubbles accidentally breaks a flower and learns the importance of telling the truth.')">
+                <div class="topic-icon" style="background: rgba(52,211,153,0.08);">&#128154;</div>
+                <div class="topic-info">
+                    <div class="topic-name">Honesty</div>
+                    <div class="topic-desc">Learning to always tell the truth</div>
+                </div>
+                <div class="topic-arrow">&#8250;</div>
+            </div>
+            <div class="topic-card" onclick="pickStory('kindness','Kindness','videos/kindness.mp4','Bubbles helps a little bird find its way back home and discovers that small acts of kindness matter.')">
+                <div class="topic-icon" style="background: rgba(244,114,182,0.08);">&#128149;</div>
+                <div class="topic-info">
+                    <div class="topic-name">Kindness</div>
+                    <div class="topic-desc">Being kind to others around you</div>
+                </div>
+                <div class="topic-arrow">&#8250;</div>
+            </div>
+            <div class="topic-card" onclick="pickStory('sharing','Sharing','videos/honesty.mp4','The joy of sharing with friends — coming soon to your library.')">
+                <div class="topic-icon" style="background: rgba(251,146,60,0.08);">&#129309;</div>
+                <div class="topic-info">
+                    <div class="topic-name">Sharing</div>
+                    <div class="topic-desc">The joy of sharing with friends</div>
+                </div>
+                <div class="topic-arrow">&#8250;</div>
+            </div>
+            <div class="topic-card" onclick="pickStory('courage','Courage','videos/honesty.mp4','Being brave when things feel scary — coming soon to your library.')">
+                <div class="topic-icon" style="background: rgba(99,102,241,0.08);">&#128170;</div>
+                <div class="topic-info">
+                    <div class="topic-name">Courage</div>
+                    <div class="topic-desc">Being brave when things are scary</div>
+                </div>
+                <div class="topic-arrow">&#8250;</div>
+            </div>
+            <div class="topic-card" onclick="pickStory('gratitude','Gratitude','videos/honesty.mp4','Learning to say thank you — coming soon to your library.')">
+                <div class="topic-icon" style="background: rgba(251,191,36,0.08);">&#128591;</div>
+                <div class="topic-info">
+                    <div class="topic-name">Gratitude</div>
+                    <div class="topic-desc">Learning to be thankful</div>
+                </div>
+                <div class="topic-arrow">&#8250;</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 6: GENERATING VIDEO -->
+<div class="screen" id="screen6">
+    <div class="screen-inner">
+        <div class="gen-card">
+            <div class="gen-character">
+                <img src="output/ai_character_1.png" alt="Character">
+            </div>
+            <div class="gen-badge">AI Video Generation</div>
+            <div class="gen-title">Generating Story...</div>
+            <div class="gen-topic">Topic: Honesty</div>
+            <div class="gen-progress-bar">
+                <div class="gen-progress-fill" id="genProgress"></div>
+            </div>
+            <div class="gen-status" id="genStatus">Writing script...</div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 7: VIDEO PLAYER -->
+<div class="screen" id="screen7">
+    <div class="screen-inner">
+        <button class="back-link" onclick="goToScreen(4)"><span class="arrow">&#8249;</span> Back to Topics</button>
+        <div class="player-layout">
+            <div class="player-video-wrap">
+                <video id="protoVideo" preload="metadata">
+                    <source src="videos/honesty.mp4" type="video/mp4">
+                </video>
+                <div class="player-overlay" id="protoOverlay">
+                    <div class="player-play"><div class="player-play-icon"></div></div>
+                    <div class="player-overlay-text">Tap to play</div>
+                </div>
+            </div>
+            <div class="player-sidebar">
+                <div class="player-title">Bubbles Learns Honesty</div>
+                <div class="player-meta">43 seconds &middot; AI Generated &middot; Behavioral</div>
+                <div class="player-tags">
+                    <span class="player-tag">Honesty</span>
+                    <span class="player-tag">Ages 4-10</span>
+                </div>
+                <div class="player-details">
+                    <div class="detail-label">About This Story</div>
+                    <div class="detail-text">Bubbles accidentally breaks a flower and learns the importance of telling the truth. Personalized with your child's own character.</div>
+                </div>
+                <div class="player-actions">
+                    <button class="action-btn primary" onclick="goToScreen(4)">&#43; New Story</button>
+                    <div class="action-row">
+                        <button class="action-btn secondary">&#128228; Share</button>
+                        <button class="action-btn secondary">&#128190; Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== STATE =====
+    const state = {
+        characterUrl: 'output/ai_character_1.png',  // current selected/generated character
+        characterDescription: '',
+        drawingDataUrl: null,                        // user-uploaded drawing preview
+        generationMode: 'demo',                      // 'demo' or 'live'
+        currentTopic: { id: 'honesty', name: 'Honesty', video: 'videos/honesty.mp4',
+                        desc: 'Bubbles accidentally breaks a flower and learns the importance of telling the truth.' },
+    };
+
+    let currentScreen = 1;
+    const screens = {};
+    for (let i = 1; i <= 7; i++) screens[i] = document.getElementById('screen' + i);
+
+    function goToScreen(n) {
+        screens[currentScreen].classList.remove('active');
+        screens[n].classList.add('active');
+        currentScreen = n;
+
+        document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+        if (n === 1) document.querySelectorAll('.nav-links button')[0].classList.add('active');
+
+        if (n === 2) runProcessing();
+        if (n === 6) runGenerating();
+        if (n === 7) loadVideoPlayer();
+        if (n === 4 || n === 5) syncCharacterImages();
+    }
+
+    function syncCharacterImages() {
+        // Update all character thumbnails on screens 4, 5, 6 to current character
+        document.querySelectorAll('#screen4 .topics-header img, #screen5 .topics-header img, #screen6 .gen-character img').forEach(img => {
+            img.src = state.characterUrl;
+        });
+        document.querySelectorAll('#screen3 .reveal-glow img').forEach(img => {
+            img.src = state.characterUrl;
+        });
+    }
+
+    function showToast(msg, ms = 4000) {
+        const t = document.getElementById('apiToast');
+        t.textContent = msg;
+        t.style.opacity = '1';
+        t.style.transform = 'translateY(0)';
+        t.style.pointerEvents = 'auto';
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => {
+            t.style.opacity = '0';
+            t.style.transform = 'translateY(20px)';
+            t.style.pointerEvents = 'none';
+        }, ms);
+    }
+
+    // ===== UPLOAD & CHARACTER GENERATION =====
+    function useSampleCharacter(url, name) {
+        state.characterUrl = url;
+        state.characterDescription = 'Bubbles — sample character';
+        state.generationMode = 'demo';
+        // Show drawing in process screen as the sample drawing too
+        document.querySelectorAll('#screen2 .process-drawing img').forEach(img => img.src = 'Image1-test.jpg');
+        showToast('Using sample character — skipping upload.');
+        goToScreen(3);
+        // Update reveal screen image
+        document.querySelector('#screen3 .reveal-glow img').src = url;
+    }
+
+    document.getElementById('drawingFileInput').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 10 * 1024 * 1024) {
+            showToast('File too large. Please use an image under 10 MB.');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            state.drawingDataUrl = ev.target.result;
+            // Show user's drawing in processing screen
+            document.querySelectorAll('#screen2 .process-drawing img').forEach(img => img.src = state.drawingDataUrl);
+            goToScreen(2);
+            // Kick off real generation in parallel with the animation
+            generateCharacterFromUpload(state.drawingDataUrl);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    async function generateCharacterFromUpload(dataUrl) {
+        try {
+            const r = await fetch('/api/generate-character', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ image: dataUrl }),
+            });
+            if (!r.ok) throw new Error('API ' + r.status);
+            const data = await r.json();
+            if (data.character_url) {
+                state.characterUrl = data.character_url;
+                state.characterDescription = data.description || '';
+                state.generationMode = 'live';
+                document.querySelector('#screen3 .reveal-glow img').src = data.character_url;
+                showToast('Live AI character generated!');
+            } else {
+                throw new Error('No character returned');
+            }
+        } catch (err) {
+            // Graceful fallback to demo mode (when no API key set or function timed out)
+            state.characterUrl = 'output/ai_character_1.png';
+            state.generationMode = 'demo';
+            document.querySelector('#screen3 .reveal-glow img').src = state.characterUrl;
+            showToast('Demo mode: showing sample Bubbles character. (Live AI key not configured.)', 6000);
+        }
+    }
+
+    // ===== TOPIC SELECTION =====
+    function pickStory(id, name, videoSrc, desc) {
+        state.currentTopic = { id, name, video: videoSrc, desc };
+        goToScreen(6);
+    }
+
+    // ===== PROCESSING ANIMATION (Screen 2) =====
+    function runProcessing() {
+        const steps = [document.getElementById('pStep1'), document.getElementById('pStep2'), document.getElementById('pStep3')];
+        const text = document.getElementById('processText');
+        const sub = document.getElementById('processSub');
+
+        steps.forEach(s => s.className = 'process-step');
+        steps[0].classList.add('active');
+        text.textContent = 'Analyzing drawing...';
+        sub.textContent = state.generationMode === 'live' ? 'Calling GPT-4 Vision...' : 'This takes about 30 seconds';
+
+        setTimeout(() => {
+            steps[0].classList.replace('active', 'done');
+            steps[0].querySelector('.step-dot').textContent = '\u2713';
+            steps[1].classList.add('active');
+            text.textContent = 'Understanding features...';
+        }, 1500);
+
+        setTimeout(() => {
+            steps[1].classList.replace('active', 'done');
+            steps[1].querySelector('.step-dot').textContent = '\u2713';
+            steps[2].classList.add('active');
+            text.textContent = 'Generating character with DALL-E 3...';
+        }, 3000);
+
+        setTimeout(() => {
+            steps[2].classList.replace('active', 'done');
+            steps[2].querySelector('.step-dot').textContent = '\u2713';
+            text.textContent = 'Done!';
+            sub.textContent = '';
+        }, 4500);
+
+        setTimeout(() => goToScreen(3), 5200);
+    }
+
+    // ===== GENERATING ANIMATION (Screen 6) =====
+    function runGenerating() {
+        // Set the topic name on the gen card
+        const genTopic = document.querySelector('#screen6 .gen-topic');
+        if (genTopic) genTopic.textContent = 'Topic: ' + state.currentTopic.name;
+        const bar = document.getElementById('genProgress');
+        const status = document.getElementById('genStatus');
+        bar.style.width = '0%';
+
+        const stages = [
+            { pct: '12%', text: 'Writing story script with GPT-4o...' },
+            { pct: '25%', text: 'Creating scene prompts...' },
+            { pct: '45%', text: 'Generating Scene 1 with Veo 3.1...' },
+            { pct: '60%', text: 'Extending to Scene 3...' },
+            { pct: '78%', text: 'Extending to Scene 5...' },
+            { pct: '92%', text: 'Adding narration...' },
+            { pct: '100%', text: 'Done!' },
+        ];
+
+        stages.forEach((s, i) => {
+            setTimeout(() => { bar.style.width = s.pct; status.textContent = s.text; }, i * 800);
+        });
+
+        setTimeout(() => goToScreen(7), stages.length * 800 + 600);
+    }
+
+    // ===== VIDEO PLAYER (Screen 7) =====
+    function loadVideoPlayer() {
+        const v = document.getElementById('protoVideo');
+        const overlay = document.getElementById('protoOverlay');
+        v.querySelector('source').src = state.currentTopic.video;
+        v.load();
+        overlay.classList.remove('hidden');
+
+        // Update sidebar
+        document.querySelector('#screen7 .player-title').textContent = 'Bubbles Learns ' + state.currentTopic.name;
+        document.querySelector('#screen7 .player-meta').textContent = '~43 seconds · AI Generated · ' + state.currentTopic.name;
+        document.querySelector('#screen7 .player-tags').innerHTML =
+            '<span class="player-tag">' + state.currentTopic.name + '</span><span class="player-tag">Ages 4-10</span>' +
+            (state.generationMode === 'live' ? '<span class="player-tag" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.2); color:#34d399;">Live AI</span>' : '');
+        document.querySelector('#screen7 .player-details .detail-text').textContent = state.currentTopic.desc;
+    }
+
+    const protoVideo = document.getElementById('protoVideo');
+    const protoOverlay = document.getElementById('protoOverlay');
+
+    protoOverlay.addEventListener('click', () => {
+        protoOverlay.classList.add('hidden');
+        protoVideo.play().catch(() => {});
+    });
+    protoVideo.addEventListener('ended', () => protoOverlay.classList.remove('hidden'));
+    protoVideo.addEventListener('click', () => { if (protoVideo.paused) protoVideo.play(); else protoVideo.pause(); });
+</script>
+
+</body>
+</html>

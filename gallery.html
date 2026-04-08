@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khayaal — Gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #fff; min-height: 100vh; }
+        a { color: inherit; text-decoration: none; }
+
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 18px 60px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100; background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px); border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+        }
+        .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .logo span { color: #f472b6; }
+        .nav-center { display: flex; gap: 6px; }
+        .nav-center a {
+            color: #94a3b8; font-size: 14px; font-weight: 600;
+            padding: 8px 16px; border-radius: 10px; transition: all 0.2s;
+        }
+        .nav-center a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .nav-center a.active { color: #fff; background: rgba(99,102,241,0.15); }
+        .nav-cta {
+            background: #6366f1; color: #fff;
+            padding: 9px 20px; border-radius: 10px; font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .nav-cta:hover { background: #4f46e5; transform: translateY(-1px); }
+        @media (max-width: 768px) { .nav-center { display: none; } nav { padding: 16px 24px; } }
+
+        .hero {
+            padding: 140px 60px 60px; max-width: 1200px; margin: 0 auto; text-align: center;
+        }
+        .tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.25);
+            padding: 8px 20px; border-radius: 24px; font-size: 13px; color: #a5b4fc; margin-bottom: 24px;
+        }
+        h1 { font-size: 56px; font-weight: 800; line-height: 1.05; margin-bottom: 16px; letter-spacing: -1.5px; }
+        .hero p { font-size: 18px; color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+        .grid {
+            max-width: 1200px; margin: 0 auto; padding: 40px 60px 100px;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px;
+        }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; padding: 40px 24px 80px; } .hero { padding: 120px 24px 40px; } h1 { font-size: 38px; } }
+
+        .video-card {
+            background: linear-gradient(145deg, rgba(30,41,59,0.6) 0%, rgba(23,32,51,0.8) 100%);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 20px;
+            overflow: hidden; transition: all 0.3s;
+        }
+        .video-card:hover {
+            border-color: rgba(99,102,241,0.3); transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+        }
+        .video-wrap { position: relative; aspect-ratio: 16/9; background: #000; }
+        .video-wrap video { width: 100%; height: 100%; object-fit: contain; }
+        .video-meta { padding: 22px 24px; }
+        .video-cat {
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+        .video-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.4px; }
+        .video-desc { font-size: 14px; color: #94a3b8; line-height: 1.5; margin-bottom: 14px; }
+        .video-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .vt {
+            background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.18);
+            padding: 5px 12px; border-radius: 8px; font-size: 11px; color: #a5b4fc; font-weight: 600;
+        }
+        .vt.green { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.18); color: #34d399; }
+        .vt.pink { background: rgba(244,114,182,0.08); border-color: rgba(244,114,182,0.18); color: #f472b6; }
+        .vt.orange { background: rgba(251,146,60,0.08); border-color: rgba(251,146,60,0.18); color: #fb923c; }
+        .vt.amber { background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.18); color: #fbbf24; }
+
+        .placeholder-card {
+            background: linear-gradient(145deg, rgba(30,41,59,0.4) 0%, rgba(23,32,51,0.5) 100%);
+            border: 2px dashed rgba(99,102,241,0.2); border-radius: 20px;
+            padding: 60px 24px; text-align: center; min-height: 320px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .placeholder-card .pl-icon {
+            width: 64px; height: 64px; border-radius: 16px;
+            background: rgba(99,102,241,0.1); display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin-bottom: 16px;
+        }
+        .placeholder-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .placeholder-card p { font-size: 13px; color: #64748b; max-width: 240px; line-height: 1.5; }
+
+        footer { padding: 40px 60px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05); color: #475569; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="logo">Khayaal <span>&#1582;&#1610;&#1575;&#1604;</span></a>
+    <div class="nav-center">
+        <a href="/app.html">Try the App</a>
+        <a href="/gallery.html" class="active">Gallery</a>
+        <a href="/pricing.html">Pricing</a>
+    </div>
+    <a href="/app.html" class="nav-cta">Launch App &rarr;</a>
+</nav>
+
+<section class="hero">
+    <div class="tag"><span style="width:6px;height:6px;background:#6366f1;border-radius:50%;"></span> All videos generated by Khayaal AI pipeline</div>
+    <h1>Story Gallery</h1>
+    <p>Every video below was generated end-to-end by Khayaal — drawing → AI character → 6-scene animated story with baked-in narration. Same character, different stories.</p>
+</section>
+
+<div class="grid">
+
+    <div class="video-card">
+        <div class="video-wrap">
+            <video src="videos/honesty.mp4" controls preload="metadata" poster="characters/bubbles_front.png"></video>
+        </div>
+        <div class="video-meta">
+            <div class="video-cat" style="color:#34d399;">BEHAVIOURAL &middot; HONESTY</div>
+            <div class="video-title">Bubbles Learns Honesty</div>
+            <div class="video-desc">Bubbles accidentally breaks a flower in the garden and confesses to the wise old turtle. A 6-scene lesson on why telling the truth matters.</div>
+            <div class="video-tags">
+                <span class="vt green">43s</span><span class="vt">6 scenes</span><span class="vt">Ages 4-10</span><span class="vt pink">English narration</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="video-card">
+        <div class="video-wrap">
+            <video src="videos/ramadan.mp4" controls preload="metadata" poster="characters/bubbles_front.png"></video>
+        </div>
+        <div class="video-meta">
+            <div class="video-cat" style="color:#fbbf24;">SEASONAL &middot; RAMADAN</div>
+            <div class="video-title">Bubbles Celebrates Ramadan</div>
+            <div class="video-desc">Bubbles spots the crescent moon, helps prepare iftar, decorates lanterns, and shares Ramadan joy with the village. Ends with "Ramadan Kareem!"</div>
+            <div class="video-tags">
+                <span class="vt amber">43s</span><span class="vt">6 scenes</span><span class="vt">Ages 4-10</span><span class="vt pink">English narration</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="video-card">
+        <div class="video-wrap">
+            <video src="videos/kindness.mp4" controls preload="metadata" poster="characters/bubbles_wave.png"
+                   onerror="this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;color:#64748b;font-size:14px;text-align:center;padding:20px;&quot;>Generating &mdash; check back soon</div>'"></video>
+        </div>
+        <div class="video-meta">
+            <div class="video-cat" style="color:#f472b6;">BEHAVIOURAL &middot; KINDNESS</div>
+            <div class="video-title">Bubbles Learns Kindness</div>
+            <div class="video-desc">Bubbles helps a fallen baby bird find its way back to its nest, discovering that small acts of kindness make the world a happier place.</div>
+            <div class="video-tags">
+                <span class="vt pink">~43s</span><span class="vt">6 scenes</span><span class="vt">Ages 4-10</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="video-card">
+        <div class="video-wrap">
+            <video src="videos/counting.mp4" controls preload="metadata" poster="characters/bubbles_teaching.png"
+                   onerror="this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;color:#64748b;font-size:14px;text-align:center;padding:20px;&quot;>Generating &mdash; check back soon</div>'"></video>
+        </div>
+        <div class="video-meta">
+            <div class="video-cat" style="color:#a5b4fc;">LEARNING &middot; NUMBERS</div>
+            <div class="video-title">Bubbles Learns to Count</div>
+            <div class="video-desc">Bubbles explores a magical garden full of glowing fruits and learns to count from one to five. An early-numeracy story.</div>
+            <div class="video-tags">
+                <span class="vt">~43s</span><span class="vt">6 scenes</span><span class="vt">Ages 4-6</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="video-card">
+        <div class="video-wrap">
+            <video src="videos/eid.mp4" controls preload="metadata" poster="characters/bubbles_front.png"
+                   onerror="this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;color:#64748b;font-size:14px;text-align:center;padding:20px;&quot;>Generating &mdash; check back soon</div>'"></video>
+        </div>
+        <div class="video-meta">
+            <div class="video-cat" style="color:#fb923c;">SEASONAL &middot; EID</div>
+            <div class="video-title">Bubbles Celebrates Eid</div>
+            <div class="video-desc">Bubbles wakes up on Eid morning, puts on a new outfit, exchanges gifts and shares a feast with friends in the decorated village.</div>
+            <div class="video-tags">
+                <span class="vt orange">~43s</span><span class="vt">6 scenes</span><span class="vt">Ages 4-10</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="placeholder-card">
+        <div class="pl-icon">&#10133;</div>
+        <h3>Your story here</h3>
+        <p>Upload your child's drawing in the app and create a personalised animated story.</p>
+        <a href="/app.html" class="nav-cta" style="margin-top:18px;">Try the App &rarr;</a>
+    </div>
+
+</div>
+
+<footer>
+    Khayaal &copy; 2026 &nbsp;|&nbsp; SCALE7 Wave 6 Winner &nbsp;|&nbsp; Doha, Qatar
+</footer>
+
+</body>
+</html>

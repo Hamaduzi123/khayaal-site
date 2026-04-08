@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khayaal — Pricing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #fff; min-height: 100vh; }
+        a { color: inherit; text-decoration: none; }
+
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 18px 60px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100; background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px); border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+        }
+        .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .logo span { color: #f472b6; }
+        .nav-center { display: flex; gap: 6px; }
+        .nav-center a {
+            color: #94a3b8; font-size: 14px; font-weight: 600;
+            padding: 8px 16px; border-radius: 10px; transition: all 0.2s;
+        }
+        .nav-center a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .nav-center a.active { color: #fff; background: rgba(99,102,241,0.15); }
+        .nav-cta {
+            background: #6366f1; color: #fff;
+            padding: 9px 20px; border-radius: 10px; font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .nav-cta:hover { background: #4f46e5; transform: translateY(-1px); }
+        @media (max-width: 768px) { .nav-center { display: none; } nav { padding: 16px 24px; } }
+
+        .hero {
+            padding: 140px 60px 40px; max-width: 1100px; margin: 0 auto; text-align: center;
+        }
+        .tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.25);
+            padding: 8px 20px; border-radius: 24px; font-size: 13px; color: #a5b4fc; margin-bottom: 24px;
+        }
+        h1 { font-size: 56px; font-weight: 800; line-height: 1.05; margin-bottom: 16px; letter-spacing: -1.5px; }
+        .hero p { font-size: 18px; color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+        .tiers {
+            max-width: 1100px; margin: 0 auto; padding: 40px 60px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+        }
+        @media (max-width: 900px) { .tiers { grid-template-columns: 1fr; padding: 40px 24px; } .hero { padding: 120px 24px 30px; } h1 { font-size: 40px; } }
+
+        .tier {
+            background: linear-gradient(145deg, rgba(30,41,59,0.6) 0%, rgba(23,32,51,0.8) 100%);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
+            padding: 36px 28px; transition: all 0.3s; position: relative;
+        }
+        .tier:hover { transform: translateY(-4px); border-color: rgba(99,102,241,0.3); }
+        .tier.featured {
+            border-color: rgba(99,102,241,0.4);
+            background: linear-gradient(145deg, rgba(99,102,241,0.12) 0%, rgba(23,32,51,0.8) 100%);
+            box-shadow: 0 12px 40px rgba(99,102,241,0.15);
+        }
+        .featured-badge {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: #6366f1; color: #fff; padding: 5px 16px; border-radius: 12px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .tier-name { font-size: 14px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+        .tier-price { font-size: 48px; font-weight: 900; line-height: 1; margin-bottom: 4px; letter-spacing: -1.5px; }
+        .tier-price .currency { font-size: 22px; vertical-align: top; margin-right: 2px; color: #94a3b8; font-weight: 600; }
+        .tier-price .per { font-size: 15px; color: #64748b; font-weight: 500; }
+        .tier-tagline { font-size: 13px; color: #94a3b8; margin-bottom: 24px; min-height: 36px; }
+        .tier-cta {
+            display: block; width: 100%; padding: 12px; border-radius: 12px; border: none;
+            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+            cursor: pointer; transition: all 0.3s; text-align: center; text-decoration: none;
+            background: rgba(255,255,255,0.06); color: #fff; margin-bottom: 24px;
+        }
+        .tier-cta:hover { background: rgba(255,255,255,0.1); }
+        .tier.featured .tier-cta { background: #6366f1; }
+        .tier.featured .tier-cta:hover { background: #4f46e5; transform: translateY(-2px); }
+        .features { list-style: none; }
+        .features li { padding: 10px 0; font-size: 14px; color: #cbd5e1; display: flex; align-items: flex-start; gap: 12px; border-top: 1px solid rgba(255,255,255,0.04); }
+        .features li:first-child { border-top: none; }
+        .check { width: 18px; height: 18px; border-radius: 5px; background: rgba(52,211,153,0.15); color: #34d399; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; margin-top: 2px; font-weight: 800; }
+
+        .nurseries {
+            max-width: 1100px; margin: 60px auto; padding: 0 60px;
+        }
+        @media (max-width: 768px) { .nurseries { padding: 0 24px; } }
+        .nurs-card {
+            background: linear-gradient(135deg, rgba(244,114,182,0.08) 0%, rgba(99,102,241,0.05) 100%);
+            border: 1px solid rgba(244,114,182,0.2); border-radius: 24px;
+            padding: 48px; text-align: center;
+        }
+        .nurs-card h2 { font-size: 32px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
+        .nurs-card p { font-size: 16px; color: #cbd5e1; max-width: 600px; margin: 0 auto 24px; line-height: 1.6; }
+        .nurs-cta { display: inline-block; background: #f472b6; color: #fff; padding: 14px 32px; border-radius: 12px; font-weight: 700; font-size: 15px; transition: all 0.3s; }
+        .nurs-cta:hover { background: #ec4899; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(244,114,182,0.4); }
+
+        .credits {
+            max-width: 1100px; margin: 60px auto; padding: 0 60px;
+        }
+        .credits h3 { font-size: 22px; font-weight: 800; margin-bottom: 6px; text-align: center; }
+        .credits p { font-size: 14px; color: #94a3b8; text-align: center; margin-bottom: 24px; }
+        .credit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        @media (max-width: 768px) { .credit-grid { grid-template-columns: 1fr; } .credits { padding: 0 24px; } }
+        .credit-card {
+            background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px; padding: 24px; text-align: center; transition: all 0.2s;
+        }
+        .credit-card:hover { border-color: rgba(99,102,241,0.3); }
+        .credit-amount { font-size: 32px; font-weight: 900; margin-bottom: 4px; }
+        .credit-amount .currency { font-size: 16px; color: #94a3b8; font-weight: 600; }
+        .credit-videos { font-size: 14px; color: #94a3b8; }
+
+        footer { padding: 40px 60px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05); color: #475569; font-size: 13px; margin-top: 60px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="logo">Khayaal <span>&#1582;&#1610;&#1575;&#1604;</span></a>
+    <div class="nav-center">
+        <a href="/app.html">Try the App</a>
+        <a href="/gallery.html">Gallery</a>
+        <a href="/pricing.html" class="active">Pricing</a>
+    </div>
+    <a href="/app.html" class="nav-cta">Launch App &rarr;</a>
+</nav>
+
+<section class="hero">
+    <div class="tag">Simple, transparent pricing</div>
+    <h1>Plans for every family</h1>
+    <p>Start free. Upgrade when your kids want more stories. Cancel anytime.</p>
+</section>
+
+<div class="tiers">
+    <div class="tier">
+        <div class="tier-name">Free</div>
+        <div class="tier-price"><span class="currency">$</span>0<span class="per">/month</span></div>
+        <div class="tier-tagline">Try Khayaal with one character.</div>
+        <a href="/app.html" class="tier-cta">Get Started</a>
+        <ul class="features">
+            <li><span class="check">&#10003;</span> 1 AI character</li>
+            <li><span class="check">&#10003;</span> 3 story videos / month</li>
+            <li><span class="check">&#10003;</span> English narration</li>
+            <li><span class="check">&#10003;</span> Basic story library</li>
+        </ul>
+    </div>
+
+    <div class="tier featured">
+        <div class="featured-badge">Most Popular</div>
+        <div class="tier-name">Family</div>
+        <div class="tier-price"><span class="currency">$</span>14.99<span class="per">/month</span></div>
+        <div class="tier-tagline">Everything a family needs.</div>
+        <a href="#" class="tier-cta" onclick="alert('Available at launch — join the waitlist on the home page!'); return false;">Join Waitlist</a>
+        <ul class="features">
+            <li><span class="check">&#10003;</span> Up to 5 AI characters</li>
+            <li><span class="check">&#10003;</span> 25 story videos / month</li>
+            <li><span class="check">&#10003;</span> Arabic + English narration</li>
+            <li><span class="check">&#10003;</span> Full story library &amp; categories</li>
+            <li><span class="check">&#10003;</span> Behavioural &amp; Arabic folktale stories</li>
+            <li><span class="check">&#10003;</span> Save and share videos</li>
+        </ul>
+    </div>
+
+    <div class="tier">
+        <div class="tier-name">Premium</div>
+        <div class="tier-price"><span class="currency">$</span>24.99<span class="per">/month</span></div>
+        <div class="tier-tagline">For serious creators &amp; siblings.</div>
+        <a href="#" class="tier-cta" onclick="alert('Available at launch — join the waitlist on the home page!'); return false;">Join Waitlist</a>
+        <ul class="features">
+            <li><span class="check">&#10003;</span> Unlimited AI characters</li>
+            <li><span class="check">&#10003;</span> Unlimited story videos</li>
+            <li><span class="check">&#10003;</span> Arabic dialect choice (Khaleeji / Egyptian)</li>
+            <li><span class="check">&#10003;</span> Custom topic prompts</li>
+            <li><span class="check">&#10003;</span> Priority generation</li>
+            <li><span class="check">&#10003;</span> Early access to new features</li>
+        </ul>
+    </div>
+</div>
+
+<div class="credits">
+    <h3>Need extra videos?</h3>
+    <p>Top up with credits anytime. No subscription required.</p>
+    <div class="credit-grid">
+        <div class="credit-card">
+            <div class="credit-amount"><span class="currency">$</span>4.99</div>
+            <div class="credit-videos">5 video credits</div>
+        </div>
+        <div class="credit-card">
+            <div class="credit-amount"><span class="currency">$</span>8.99</div>
+            <div class="credit-videos">12 video credits</div>
+        </div>
+        <div class="credit-card">
+            <div class="credit-amount"><span class="currency">$</span>14.99</div>
+            <div class="credit-videos">25 video credits</div>
+        </div>
+    </div>
+</div>
+
+<div class="nurseries">
+    <div class="nurs-card">
+        <h2>Free Pilot for Nurseries &amp; Schools</h2>
+        <p>We are running free pilots for nurseries and schools in Qatar — full access for 6&ndash;8 weeks for up to 50 children. Help us shape an Arabic-first creative learning tool for the next generation.</p>
+        <a href="mailto:Hamadibrahim1117@gmail.com?subject=Khayaal%20Nursery%20Pilot" class="nurs-cta">Apply for a Free Pilot &rarr;</a>
+    </div>
+</div>
+
+<footer>
+    Khayaal &copy; 2026 &nbsp;|&nbsp; SCALE7 Wave 6 Winner &nbsp;|&nbsp; Doha, Qatar
+</footer>
+
+</body>
+</html>
