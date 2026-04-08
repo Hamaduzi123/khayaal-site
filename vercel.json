@@ -1,16 +1,4 @@
 {
-  "version": 2,
-  "functions": {
-    "api/generate-character.py": {
-      "maxDuration": 60
-    },
-    "api/generate-script.py": {
-      "maxDuration": 30
-    },
-    "api/waitlist.py": {
-      "maxDuration": 10
-    }
-  },
   "cleanUrls": true,
   "trailingSlash": false
 }

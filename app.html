@@ -731,7 +731,7 @@
         document.querySelector('#screen3 .reveal-glow img').src = url;
     }
 
-    document.getElementById('drawingFileInput').addEventListener('change', async (e) => {
+    document.getElementById('drawingFileInput').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
         if (file.size > 10 * 1024 * 1024) {
@@ -741,41 +741,15 @@
         const reader = new FileReader();
         reader.onload = (ev) => {
             state.drawingDataUrl = ev.target.result;
-            // Show user's drawing in processing screen
+            // Show user's actual drawing on the processing screen
             document.querySelectorAll('#screen2 .process-drawing img').forEach(img => img.src = state.drawingDataUrl);
+            // Reveal screen always shows our trained sample Bubbles for now
+            state.characterUrl = 'output/ai_character_1.png';
+            document.querySelector('#screen3 .reveal-glow img').src = state.characterUrl;
             goToScreen(2);
-            // Kick off real generation in parallel with the animation
-            generateCharacterFromUpload(state.drawingDataUrl);
         };
         reader.readAsDataURL(file);
     });
-
-    async function generateCharacterFromUpload(dataUrl) {
-        try {
-            const r = await fetch('/api/generate-character', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ image: dataUrl }),
-            });
-            if (!r.ok) throw new Error('API ' + r.status);
-            const data = await r.json();
-            if (data.character_url) {
-                state.characterUrl = data.character_url;
-                state.characterDescription = data.description || '';
-                state.generationMode = 'live';
-                document.querySelector('#screen3 .reveal-glow img').src = data.character_url;
-                showToast('Live AI character generated!');
-            } else {
-                throw new Error('No character returned');
-            }
-        } catch (err) {
-            // Graceful fallback to demo mode (when no API key set or function timed out)
-            state.characterUrl = 'output/ai_character_1.png';
-            state.generationMode = 'demo';
-            document.querySelector('#screen3 .reveal-glow img').src = state.characterUrl;
-            showToast('Demo mode: showing sample Bubbles character. (Live AI key not configured.)', 6000);
-        }
-    }
 
     // ===== TOPIC SELECTION =====
     function pickStory(id, name, videoSrc, desc) {
@@ -792,7 +766,7 @@
         steps.forEach(s => s.className = 'process-step');
         steps[0].classList.add('active');
         text.textContent = 'Analyzing drawing...';
-        sub.textContent = state.generationMode === 'live' ? 'Calling GPT-4 Vision...' : 'This takes about 30 seconds';
+        sub.textContent = 'Demo: real pipeline takes ~30 seconds';
 
         setTimeout(() => {
             steps[0].classList.replace('active', 'done');
@@ -805,7 +779,7 @@
             steps[1].classList.replace('active', 'done');
             steps[1].querySelector('.step-dot').textContent = '\u2713';
             steps[2].classList.add('active');
-            text.textContent = 'Generating character with DALL-E 3...';
+            text.textContent = 'Generating character...';
         }, 3000);
 
         setTimeout(() => {
@@ -828,9 +802,9 @@
         bar.style.width = '0%';
 
         const stages = [
-            { pct: '12%', text: 'Writing story script with GPT-4o...' },
+            { pct: '12%', text: 'Writing story script...' },
             { pct: '25%', text: 'Creating scene prompts...' },
-            { pct: '45%', text: 'Generating Scene 1 with Veo 3.1...' },
+            { pct: '45%', text: 'Generating Scene 1...' },
             { pct: '60%', text: 'Extending to Scene 3...' },
             { pct: '78%', text: 'Extending to Scene 5...' },
             { pct: '92%', text: 'Adding narration...' },
@@ -856,8 +830,7 @@
         document.querySelector('#screen7 .player-title').textContent = 'Bubbles Learns ' + state.currentTopic.name;
         document.querySelector('#screen7 .player-meta').textContent = '~43 seconds · AI Generated · ' + state.currentTopic.name;
         document.querySelector('#screen7 .player-tags').innerHTML =
-            '<span class="player-tag">' + state.currentTopic.name + '</span><span class="player-tag">Ages 4-10</span>' +
-            (state.generationMode === 'live' ? '<span class="player-tag" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.2); color:#34d399;">Live AI</span>' : '');
+            '<span class="player-tag">' + state.currentTopic.name + '</span><span class="player-tag">Ages 4-10</span>';
         document.querySelector('#screen7 .player-details .detail-text').textContent = state.currentTopic.desc;
     }
 

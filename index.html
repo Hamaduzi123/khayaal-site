@@ -626,31 +626,25 @@
             }
         });
 
-        // ===== WAITLIST =====
-        document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
+        // ===== WAITLIST (client-side, persists to localStorage) =====
+        document.getElementById('waitlistForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('waitlistEmail').value;
+            const emailInput = document.getElementById('waitlistEmail');
+            const email = emailInput.value.trim().toLowerCase();
             const msg = document.getElementById('waitlistMsg');
-            msg.style.color = '#94a3b8';
-            msg.textContent = 'Joining...';
-            try {
-                const r = await fetch('/api/waitlist', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email, source: 'landing'})
-                });
-                if (r.ok) {
-                    msg.style.color = '#34d399';
-                    msg.textContent = "You're on the list! We'll be in touch.";
-                    document.getElementById('waitlistEmail').value = '';
-                } else {
-                    msg.style.color = '#f472b6';
-                    msg.textContent = 'Something went wrong. Try again?';
-                }
-            } catch (err) {
+            if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
                 msg.style.color = '#f472b6';
-                msg.textContent = 'Network error. Try again?';
+                msg.textContent = 'Please enter a valid email.';
+                return;
             }
+            try {
+                const list = JSON.parse(localStorage.getItem('khayaal_waitlist') || '[]');
+                if (!list.includes(email)) list.push(email);
+                localStorage.setItem('khayaal_waitlist', JSON.stringify(list));
+            } catch (e) { /* ignore */ }
+            msg.style.color = '#34d399';
+            msg.textContent = "You're on the list! We'll be in touch when we launch.";
+            emailInput.value = '';
         });
     </script>
 
